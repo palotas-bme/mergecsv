@@ -9,7 +9,9 @@ import logging
 import re
 import sys
 
-def merge_csv(csv_path: List, out_file: str, delimiter: str, replacer: dict):
+def merge_csv(csv_path: List, out_file: str, delimiter: str, replacer: dict, include_filenames: bool = False):
+    FILENAME_FIELD = "filename"
+
     csv_files = []
     for path in csv_path:
         if os.path.isfile(path):
@@ -19,7 +21,7 @@ def merge_csv(csv_path: List, out_file: str, delimiter: str, replacer: dict):
     if len(csv_files) < 1:
         logging.error("No input files found")
         sys.exit(1)
-    fieldnames = []
+    fieldnames = [FILENAME_FIELD] if include_filenames else []
     dialects = {}
     delimiter_counter = {}
     replace_counter = set()
@@ -54,6 +56,8 @@ def merge_csv(csv_path: List, out_file: str, delimiter: str, replacer: dict):
                         reader.fieldnames[i] = replacer[f]
                 logging.info("Writing %s", csv_file)
                 for line in reader:
+                    if include_filenames:
+                        line[FILENAME_FIELD] = csv_file
                     writer.writerow(line)
     logging.info("Merged %d files to %s, replaced %s headers", len(csv_files), out_file, len(replace_counter))
     if delimiter == "\t":
@@ -75,6 +79,8 @@ parser.add_argument("-r", "--replace-header", dest="replace",
                     help="(experimental) Replace header with another. header1=header2 will replace all header1 with header2. Multiple can be added.",
                     default=[], nargs="*")
 parser.add_argument("-v", "--verbose", action="store_true", help="Print more things what is happening")
+parser.add_argument("-i", "--include-filenames",
+                    dest="include_filename", action="store_true", help="Include the input filename in the first column for each row")
 
 args = parser.parse_args()
 
@@ -98,4 +104,4 @@ if len(args.replace) > 0:
         sys.exit(1)
     header_replacer = dict([x.split("=") for x in args.replace])
 
-merge_csv(args.path, args.out, args.delimiter, header_replacer)
+merge_csv(args.path, args.out, args.delimiter, header_replacer, args.include_filename)

@@ -6,6 +6,8 @@ MergeCSV will merge will merge the files, makes sure all headers are present in 
 The input files can be ASCII of UTF-8 with or without BOM, the output file will be UTF-8 with BOM.
 All headers from the input files will be in the output file.
 
+You can include the names of the input files in the first column with `--include-filenames`.
+
 ## Usage
 
 ### Basic usage
