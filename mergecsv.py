@@ -27,6 +27,8 @@ def merge_csv(csv_path: List, out_file: str, delimiter: str, replacer: dict, inc
     replace_counter = set()
 
     for csv_file in csv_files:
+        if csv_file == out_file:
+            continue
         with open(csv_file, "r", encoding="utf-8-sig", newline="") as f:
             header = f.readline()
             dialects[csv_file] = csv.Sniffer().sniff(header)
@@ -49,6 +51,8 @@ def merge_csv(csv_path: List, out_file: str, delimiter: str, replacer: dict, inc
         writer = csv.DictWriter(f, fieldnames=fieldnames, delimiter=delimiter)
         writer.writeheader()
         for csv_file in csv_files:
+            if csv_file == out_file:
+                continue
             with open(csv_file, "r", encoding="utf-8-sig", newline="") as f_in:
                 reader = csv.DictReader(f_in, dialect=dialects[csv_file])
                 for i, f in enumerate(reader.fieldnames):
